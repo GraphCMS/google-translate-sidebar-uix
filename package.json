@@ -1,12 +1,12 @@
 {
-  "name": "graphcms-ui-extension-boilerplate",
-  "description": "GraphCMS UI Extension boilerplate",
+  "name": "google-translate-sidebar-uix",
+  "description": "Google Translate Sidebar Extension for GraphCMS",
   "author": "Cadu de Castro Alves <cadu.alves@graphcms.com>",
   "version": "0.1.0",
   "keywords": [
     "graphcms",
-    "boilerplate",
-    "react",
+    "google-translate",
+    "translation",
     "ui-extensions"
   ],
   "dependencies": {
