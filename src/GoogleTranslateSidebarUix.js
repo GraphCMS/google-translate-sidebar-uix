@@ -8,7 +8,7 @@ import {
 import axios from 'axios';
 
 const GoogleTranslateWidget = () => {
-    const { allLocales, extension, model: { fields }, form: { subscribeToFieldState, change } } = useUiExtension();
+    const { allLocales, extension, sidebarConfig, model: { fields }, form: { subscribeToFieldState, change } } = useUiExtension();
     const [ title, setTitle ] = useState('');
     const [ content, setContent ] = useState('');
     const [ sourceLanguage, setSourceLanguage ] = useState('');
@@ -16,6 +16,8 @@ const GoogleTranslateWidget = () => {
     const [ translatableFields, setTranslatableFields ] = useState([]);
 
     const authKey = extension.config.API_KEY;
+    const titleField = sidebarConfig.TITLE_FIELD;
+    const contentField = sidebarConfig.CONTENT_FIELD;
 
     const getLanguageCode = (languageCode) => {
         return languageCode.substring(0, 2);
@@ -24,9 +26,6 @@ const GoogleTranslateWidget = () => {
     useEffect(() => {
         const transFields = fields.filter((f) => f.isLocalized);
         setTranslatableFields(transFields);
-    }, [fields]);
-
-    useEffect(() => {
 
         const sourceLanguageCode = getLanguageCode(allLocales[0].apiId);
         setSourceLanguage(sourceLanguageCode);
@@ -34,9 +33,13 @@ const GoogleTranslateWidget = () => {
         const targetLanguageCode = getLanguageCode(allLocales[1].apiId);
         setTargetLanguage(targetLanguageCode);
 
+    }, [fields, allLocales]);
+
+    useEffect(() => {
+
         let unsubscribe;
         subscribeToFieldState(
-            `localization_en.title`, 
+            `localization_${allLocales[0].apiId}.${titleField}`, 
             (state) => {
                 setTitle(state.value);
             }
@@ -46,13 +49,13 @@ const GoogleTranslateWidget = () => {
             unsubscribe?.()
         };
         
-    },[subscribeToFieldState, allLocales]);
+    },[subscribeToFieldState, allLocales, titleField]);
 
     useEffect(() => {
 
         let unsubscribe;
         subscribeToFieldState(
-            `localization_en.content`, 
+            `localization_${allLocales[0].apiId}.${contentField}`, 
             (state) => {
                 setContent(state.value);
             }
@@ -62,12 +65,12 @@ const GoogleTranslateWidget = () => {
             unsubscribe?.()
         };
 
-    }, [subscribeToFieldState, allLocales]);
+    }, [subscribeToFieldState, allLocales, contentField]);
 
     const translate = () => {
         translatableFields.map((field) => {
 
-            const currentTarget = field.apiId === 'title' ? title : content;
+            const currentTarget = field.apiId === `${titleField}` ? title : content;
 
             axios.post(
                 'https://translation.googleapis.com/language/translate/v2?key=' + authKey, 
@@ -79,7 +82,7 @@ const GoogleTranslateWidget = () => {
             ).then((response) => {
                 if(response?.data?.data?.translations) {
                     let newText = response?.data?.data?.translations[0].translatedText;
-                    change(`localization_pt_BR.${field.apiId}`, newText);
+                    change(`localization_${allLocales[1].apiId}.${field.apiId}`, newText);
                 }
             }).catch((error) => {
                 console.log(error);
@@ -107,7 +110,7 @@ const GoogleTranslateWidget = () => {
 
     return (
         <>
-            <button style={btnStyle} onClick={translate}>Translate All</button><br />
+            <button style={btnStyle} onClick={translate}>Translate to {allLocales[1].displayName}</button><br />
         </>
     );
 };
@@ -127,14 +130,20 @@ const declaration = {
     },
     // Sidebar UI Extension only
     // This is an instance configuration
-    // sidebarConfig: {
-    //     API_KEY: {
-    //         type: 'string',
-    //         displayName: 'API Key',
-    //         description: 'Enter your API Key',
-    //         required: true,
-    //     }
-    // }
+    sidebarConfig: {
+        TITLE_FIELD: {
+            type: 'string',
+            displayName: 'Title Field',
+            description: 'Enter title field apiId',
+            required: true,
+        },
+        CONTENT_FIELD: {
+            type: 'string',
+            displayName: 'Content Field',
+            description: 'Enter content field apiId. Warning: Rich text field are not supported.',
+            required: true,
+        }
+    }
 };
 
 const GoogleTranslateSidebarExtension = () => {
