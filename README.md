@@ -6,6 +6,8 @@ Translate content to 100+ languages using Google Cloud Translation API.
 
 You need a Google Cloud Translate API Key in order to use this extension. Instructions [here](https://cloud.google.com/translate/docs/setup).
 
+**Warning:** this Sidebar Extension doesn't support Rich Text Editor yet.
+
 ## Setup Extension on Schema
 
 1. Go to Schema
