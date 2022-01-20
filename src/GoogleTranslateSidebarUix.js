@@ -16,14 +16,12 @@ const GoogleTranslateWidget = () => {
 
     const sourceLanguage = getLanguageCode(allLocales[0].apiId);
     const targetLanguage = getLanguageCode(allLocales[1].apiId);
-    const defaultLanguage = 'localization_' + sourceLanguage;
+    const defaultLocalization = 'localization_' + sourceLanguage;
     const targetLocalization = 'localization_' + targetLanguage;
 
     const translate = () => {
 
         getState().then(({values}) => {
-
-            // console.log('form values:', values);
 
             const asArray = Object.entries(values);
             const filtered = asArray.filter(([key]) => key.startsWith('localization_'));
@@ -31,13 +29,14 @@ const GoogleTranslateWidget = () => {
 
             // console.log('translatableFields:', translatableFields);
 
-            Object.keys(translatableFields[defaultLanguage]).map((field) => {
+            for(let field in translatableFields[defaultLocalization]) {
+            
                 if(field !== 'updatedAt') {
-                    const currentTarget = translatableFields[defaultLanguage][field];
+                    const currentText = translatableFields[defaultLocalization][field];
                     axios.post(
                         'https://translation.googleapis.com/language/translate/v2?key=' + authKey, 
                         {
-                            q: currentTarget,
+                            q: currentText,
                             source: sourceLanguage,
                             target: targetLanguage,
                             format: 'text',
@@ -51,12 +50,8 @@ const GoogleTranslateWidget = () => {
                         console.log(error);
                     });
                 }
-                return null;
-            });
 
-
-
-            
+            }
         });
     }
 
