@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react';
-
 import {
     Wrapper,
     useUiExtension,
@@ -8,89 +6,58 @@ import {
 import axios from 'axios';
 
 const GoogleTranslateWidget = () => {
-    const { allLocales, extension, sidebarConfig, model: { fields }, form: { subscribeToFieldState, change } } = useUiExtension();
-    const [ title, setTitle ] = useState('');
-    const [ content, setContent ] = useState('');
-    const [ sourceLanguage, setSourceLanguage ] = useState('');
-    const [ targetLanguage, setTargetLanguage ] = useState('');
-    const [ translatableFields, setTranslatableFields ] = useState([]);
+    const { allLocales, extension, form: { getState, change } } = useUiExtension();
 
     const authKey = extension.config.API_KEY;
-    const titleField = sidebarConfig.TITLE_FIELD;
-    const contentField = sidebarConfig.CONTENT_FIELD;
 
     const getLanguageCode = (languageCode) => {
         return languageCode.substring(0, 2);
     }
 
-    useEffect(() => {
-        const transFields = fields.filter((f) => f.isLocalized);
-        setTranslatableFields(transFields);
-
-        const sourceLanguageCode = getLanguageCode(allLocales[0].apiId);
-        setSourceLanguage(sourceLanguageCode);
-
-        const targetLanguageCode = getLanguageCode(allLocales[1].apiId);
-        setTargetLanguage(targetLanguageCode);
-
-    }, [fields, allLocales]);
-
-    useEffect(() => {
-
-        let unsubscribe;
-        subscribeToFieldState(
-            `localization_${allLocales[0].apiId}.${titleField}`, 
-            (state) => {
-                setTitle(state.value);
-            }
-        ).then(fieldUnsubscribe => unsubscribe = fieldUnsubscribe);
-
-        return () => {
-            unsubscribe?.()
-        };
-        
-    },[subscribeToFieldState, allLocales, titleField]);
-
-    useEffect(() => {
-
-        let unsubscribe;
-        subscribeToFieldState(
-            `localization_${allLocales[0].apiId}.${contentField}`, 
-            (state) => {
-                setContent(state.value);
-            }
-        ).then(fieldUnsubscribe => unsubscribe = fieldUnsubscribe);
-
-        return () => {
-            unsubscribe?.()
-        };
-
-    }, [subscribeToFieldState, allLocales, contentField]);
+    const sourceLanguage = getLanguageCode(allLocales[0].apiId);
+    const targetLanguage = getLanguageCode(allLocales[1].apiId);
+    const defaultLanguage = 'localization_' + sourceLanguage;
+    const targetLocalization = 'localization_' + targetLanguage;
 
     const translate = () => {
-        translatableFields.map((field) => {
 
-            const currentTarget = field.apiId === `${titleField}` ? title : content;
+        getState().then(({values}) => {
 
-            axios.post(
-                'https://translation.googleapis.com/language/translate/v2?key=' + authKey, 
-                {
-                    q: currentTarget,
-                    source: sourceLanguage,
-                    target: targetLanguage,
-                    format: 'text',
+            // console.log('form values:', values);
+
+            const asArray = Object.entries(values);
+            const filtered = asArray.filter(([key]) => key.startsWith('localization_'));
+            const translatableFields = Object.fromEntries(filtered);
+
+            // console.log('translatableFields:', translatableFields);
+
+            Object.keys(translatableFields[defaultLanguage]).map((field) => {
+                if(field !== 'updatedAt') {
+                    const currentTarget = translatableFields[defaultLanguage][field];
+                    axios.post(
+                        'https://translation.googleapis.com/language/translate/v2?key=' + authKey, 
+                        {
+                            q: currentTarget,
+                            source: sourceLanguage,
+                            target: targetLanguage,
+                            format: 'text',
+                        }
+                    ).then((response) => {
+                        if(response?.data?.data?.translations) {
+                            let newText = response?.data?.data?.translations[0].translatedText;
+                            change(`${targetLocalization}.${field}`, newText);
+                        }
+                    }).catch((error) => {
+                        console.log(error);
+                    });
                 }
-            ).then((response) => {
-                if(response?.data?.data?.translations) {
-                    let newText = response?.data?.data?.translations[0].translatedText;
-                    change(`localization_${allLocales[1].apiId}.${field.apiId}`, newText);
-                }
-            }).catch((error) => {
-                console.log(error);
+                return null;
             });
 
-            return null;
-        }); 
+
+
+            
+        });
     }
 
     const btnStyle = {
