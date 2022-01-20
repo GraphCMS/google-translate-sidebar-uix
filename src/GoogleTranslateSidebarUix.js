@@ -93,20 +93,20 @@ const declaration = {
     },
     // Sidebar UI Extension only
     // This is an instance configuration
-    sidebarConfig: {
-        TITLE_FIELD: {
-            type: 'string',
-            displayName: 'Title Field',
-            description: 'Enter title field apiId',
-            required: true,
-        },
-        CONTENT_FIELD: {
-            type: 'string',
-            displayName: 'Content Field',
-            description: 'Enter content field apiId. Warning: Rich text field are not supported.',
-            required: true,
-        }
-    }
+    // sidebarConfig: {
+    //     TITLE_FIELD: {
+    //         type: 'string',
+    //         displayName: 'Title Field',
+    //         description: 'Enter title field apiId',
+    //         required: true,
+    //     },
+    //     CONTENT_FIELD: {
+    //         type: 'string',
+    //         displayName: 'Content Field',
+    //         description: 'Enter content field apiId. Warning: Rich text field are not supported.',
+    //         required: true,
+    //     }
+    // }
 };
 
 const GoogleTranslateSidebarExtension = () => {
