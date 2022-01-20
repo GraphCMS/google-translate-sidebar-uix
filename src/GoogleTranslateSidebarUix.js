@@ -78,6 +78,7 @@ const GoogleTranslateWidget = () => {
                     q: currentTarget,
                     source: sourceLanguage,
                     target: targetLanguage,
+                    format: 'text',
                 }
             ).then((response) => {
                 if(response?.data?.data?.translations) {
