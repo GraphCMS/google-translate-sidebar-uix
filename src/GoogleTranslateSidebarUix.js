@@ -87,12 +87,13 @@ const GoogleTranslateWidget = () => {
             getFieldState(defaultLanguageField).then(({ value }) => {
 
                 let textToTranslate = value;
+                let isRichTextEditor = textToTranslate.hasOwnProperty('raw') ? true : false;
 
                 // Rich Text Editor - Transform AST to HTML
-                if(fieldApiId === 'contentRte') {
+                if(isRichTextEditor) {
                     const content = textToTranslate.raw;
                     textToTranslate = astToHtmlString({content});
-                    console.log('html:', textToTranslate);
+                    // console.log('html:', textToTranslate);
                 }
 
                 axios.post(
@@ -108,7 +109,7 @@ const GoogleTranslateWidget = () => {
                         let newText = response?.data?.data?.translations[0].translatedText;
 
                         // RTE - HTML to AST
-                        if(fieldApiId === 'contentRte') {
+                        if(isRichTextEditor) {
                             // console.log('html ' + targetLanguage + ':', newText);
                             htmlToSlateAST(newText).then((astValue) => {
                                 const content = {
@@ -123,11 +124,13 @@ const GoogleTranslateWidget = () => {
                             change(`${fieldPrefix}.${fieldApiId}`, newText);
                         }
                     }
+
+                    setButtonLabel('Translate');
                 }).catch((error) => {
                     console.log(error);
-                });
 
-                setButtonLabel('Translate');
+                    setButtonLabel('Translate');
+                });
 
             });
 
