@@ -27,7 +27,8 @@ const GoogleTranslateWidget = () => {
 
     const authKey = extension.config.API_KEY;
 
-    const sourceLanguage = getLanguageCode(allLocales[0].apiId);
+    const getDefaultLanguage = allLocales.filter((lang) => lang.isDefault);
+    const sourceLanguage = getLanguageCode(getDefaultLanguage[0].apiId);
     const defaultLanguage = 'localization_' + sourceLanguage;
 
     useEffect(() => {
