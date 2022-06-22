@@ -2,12 +2,14 @@
 
 Translate content to 100+ languages using Google Cloud Translation API.
 
+## Warning
+
+We've created this extension for demo purposes. You could use that in your live projects, but keep in mind it's an unofficial UIX and our team doesn't actively maintain it. Link Embeds and Images are not supported on the Rich Text Editor yet. PRs are welcomed!
+
+
 ## Requirements
 
 You need a Google Cloud Translate API Key in order to use this extension. Instructions [here](https://cloud.google.com/translate/docs/setup).
-
-**Warning:** this Sidebar Extension doesn't support Rich Text Editor yet.
-
 
 ## Setup Extension on Schema
 
