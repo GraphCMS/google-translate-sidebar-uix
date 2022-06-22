@@ -2,7 +2,7 @@
 
 Translate content to 100+ languages using Google Cloud Translation API.
 
-## Warning
+## ⚠️ Warning
 
 We've created this extension for demo purposes. You could use that in your live projects, but keep in mind it's an unofficial UIX and our team doesn't actively maintain it. Link Embeds and Images are not supported on the Rich Text Editor yet. PRs are welcomed!
 
